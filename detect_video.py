@@ -49,7 +49,7 @@ def detect_video(video_path, temp_file):
       "img-size": 640, # default image size
       "conf-thres": 0.6, # confidence threshold for inference.
       "iou-thres" : 0.6, # NMS IoU threshold for inference.
-      "device" : '0',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
+      "device" : '0' if torch.cuda.is_available() else 'cpu'  # device to run our model i.e. 0 or 0,1,2,3 or cpu
       # "classes" : classes_to_filter  # list of classes to filter or None
 
   }
