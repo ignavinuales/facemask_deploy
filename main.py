@@ -1,91 +1,69 @@
-from fastapi import FastAPI, File, UploadFile
-
-from pydantic  import BaseModel
-import cv2
-import time
-import requests
-import random
+import streamlit as st
+import cv2 
 import numpy as np
-import onnxruntime as ort
+from detect_st_v2 import detect
+from detect_video import detect_video
 from PIL import Image
-from pathlib import Path
-from collections import OrderedDict,namedtuple
-import numpy
+import subprocess
+import tempfile
 
-app = FastAPI()
+def main():
+    st.title("Face mask detection")
+    st.markdown("""
+    This is app uses computer vision to detect whether people are using face masks or not. 
 
-class DetectMask(BaseModel):
-    image: float
+    You only have to upload an image or video of your choosing or use your webcam, and hit the button 'Detect face mask'.
+    """)
 
-@app.get("/")
-async def get_detect(item:DetectMask):
-    return [item, item]
+    with st.expander("Click to see an example after running the model"):
+        img_example = Image.open("example_img.jpg")
+        st.image(img_example, width=500)
+    
+    # RUN THE MODEL ON IMAGE
+    st.subheader("Run model on image")
+    uploaded_image = st.file_uploader(label="Please upload an image", )
 
-# @app.post("/files/")
-# async def create_file(file: bytes = File()):
-#     return {"file_size": len(file)}
+    if uploaded_image:
+        file_bytes = np.asarray(bytearray(uploaded_image.read()), dtype=np.uint8)
+        opencv_image = cv2.imdecode(file_bytes, 1)
+        if st.button("Detect face mask on image"):
+            with st.spinner("In progress..."):
+                img = detect(im0=opencv_image, weights='best.pt', img_size=640, iou_thres=0.5, conf_thres=0.5)
+                st.image(img, channels='BGR')
 
-# @app.post("/uploadfile/")
-# async def create_upload_file(image: UploadFile, model:UploadFile):
-#     cuda = True
-#     w = model
-#     img = cv2.imread(image)
+    # RRUN THE MODEL ON MP4 VIDEO
+    st.subheader("Run model on video")
+    video_data = st.file_uploader("Upload file", ['mp4'])
 
-#     providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if cuda else ['CPUExecutionProvider']
-#     session = ort.InferenceSession(w, providers=providers)
+    if video_data:
+        # save uploaded video to disc
+        temp_file_1 = tempfile.NamedTemporaryFile(delete=False,suffix='.mp4')
+        temp_file_1.write(video_data.getbuffer())
+        temp_file_2 = tempfile.NamedTemporaryFile(delete=False,suffix='.mp4')
+    
+        # st.video(temp_file_1.name)
+        if st.button("Detect face mask on video"):
+            with st.spinner(text="In progress..."):
+                output = detect_video(video_path=temp_file_1.name, temp_file=temp_file_2.name)          
+                temp_file_3 = tempfile.NamedTemporaryFile(delete=False,suffix='.mp4')
+                subprocess.call(args=f"ffmpeg -y -i {temp_file_2.name} -c:v libx264 {temp_file_3.name}".split(" "))
+            st.success("Done!")
+            st.video(temp_file_3.name)
+            result_video = open(temp_file_3.name, "rb")
+            st.download_button(label="Download video file", data=result_video,file_name='mask_detection.mp4')
+
+    # RUN THE MODEL ON WEBCAM
+    st.subheader("Run model on webcam")
+    uploaded_file = st.camera_input("Take a photo from your camera")
 
 
-#     def letterbox(im, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleup=True, stride=32):
-#         # Resize and pad image while meeting stride-multiple constraints
-#         shape = im.shape[:2]  # current shape [height, width]
-#         if isinstance(new_shape, int):
-#             new_shape = (new_shape, new_shape)
-
-#         # Scale ratio (new / old)
-#         r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
-#         if not scaleup:  # only scale down, do not scale up (for better val mAP)
-#             r = min(r, 1.0)
-
-#         # Compute padding
-#         new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
-#         dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # wh padding
-
-#         if auto:  # minimum rectangle
-#             dw, dh = np.mod(dw, stride), np.mod(dh, stride)  # wh padding
-
-#         dw /= 2  # divide padding into 2 sides
-#         dh /= 2
-
-#         if shape[::-1] != new_unpad:  # resize
-#             im = cv2.resize(im, new_unpad, interpolation=cv2.INTER_LINEAR)
-#         top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
-#         left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-#         im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
-        
-#         return im, r, (dw, dh)
-
-#     names = ['without_mask', 'mask_wear_incorrect', 'with_mask']
-#     colors = {name:[random.randint(0, 255) for _ in range(3)] for i,name in enumerate(names)}
-
-#     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-#     image = img.copy()
-#     image, ratio, dwdh = letterbox(image, auto=False)
-#     image = image.transpose((2, 0, 1))
-#     image = np.expand_dims(image, 0)
-#     image = np.ascontiguousarray(image)
-
-#     im = image.astype(np.float32)
-#     im /= 255
-#     im.shape
-
-#     outname = [i.name for i in session.get_outputs()]
-#     outname
-
-#     inname = [i.name for i in session.get_inputs()]
-#     inname
-
-#     inp = {inname[0]:im}
-
-#     outputs = session.run(outname, inp)[0]
-#     return outputs
+    if uploaded_file:
+        file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+        opencv_image = cv2.imdecode(file_bytes, 1)
+        if st.button("Detect face mask on webcam"):
+            with st.spinner(text="In progress..."):
+                img = detect(im0=opencv_image, weights='best.pt', img_size=640, iou_thres=0.5, conf_thres=0.5)
+                st.image(img, channels='BGR')
+     
+if __name__ == "__main__":
+    main()

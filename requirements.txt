@@ -1,1 +1,11 @@
 fastapi
+opencv-python
+torch
+numpy
+streamlit
+pillow
+pathlib
+requests
+pandas
+PyYAML
+torchvision
