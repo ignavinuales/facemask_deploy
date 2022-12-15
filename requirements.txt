@@ -11,3 +11,4 @@ PyYAML
 torchvision
 tqdm
 matplotlib
+seaborn
