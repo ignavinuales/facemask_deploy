@@ -16,7 +16,7 @@ def main():
     """)
 
     with st.expander("Click to see an example after running the model"):
-        img_example = Image.open("example_img.jpg")
+        img_example = Image.open("example_img.jpeg")
         st.image(img_example, width=500)
     
     # RUN THE MODEL ON IMAGE
