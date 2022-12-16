@@ -22,7 +22,7 @@ def main():
     
     # RUN THE MODEL ON WEBCAM
     st.subheader("Run model on your camera")
-    st.write("Click the checkbox to open up your phone camera or webcam. With the webcam you'll probabily have to give permission from your web browser and reload the website.")
+    st.write("Click the checkbox to open up your phone camera or webcam. With the webcam you'll probably have to give permission from your web browser and reload the website.")
     webcam = st.checkbox('Turn on camera')
     if webcam:
         uploaded_file = st.camera_input("Take a photo from your webcam:")
