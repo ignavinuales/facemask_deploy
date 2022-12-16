@@ -47,8 +47,8 @@ def detect_video(video_path, temp_file):
       
       "weights": "best.pt", # Path to weights file default weights are for nano model
       "img-size": 640, # default image size
-      "conf-thres": 0.55, # confidence threshold for inference.
-      "iou-thres" : 0.55, # NMS IoU threshold for inference.
+      "conf-thres": 0.65, # confidence threshold for inference.
+      "iou-thres" : 0.65, # NMS IoU threshold for inference.
       "device" : '0' if torch.cuda.is_available() else 'cpu'  # device to run our model i.e. 0 or 0,1,2,3 or cpu
       # "classes" : classes_to_filter  # list of classes to filter or None
 
