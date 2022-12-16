@@ -50,12 +50,12 @@ def main():
             st.success("Done!")
             # st.video(temp_file_3.name)
             result_video = open(temp_file_2.name, "rb")
-            st.wirte("Please download the video:")
+            st.write("Please download the video:")
             st.download_button(label="Download video file", data=result_video,file_name='mask_detection.mp4')
 
     # RUN THE MODEL ON WEBCAM
     st.subheader("Run model on webcam")
-    st.write("Click the checkbox to open up your camera. You'll probabily have to give permission from your web browser.")
+    st.write("Click the checkbox to open up your camera. You'll probabily have to give permission from your web browser and reload the website.")
     webcam = st.checkbox('Turn on webcam')
     if webcam:
         uploaded_file = st.camera_input("Take a photo from your webcam:")

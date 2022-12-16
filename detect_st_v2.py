@@ -94,4 +94,4 @@ if __name__ == "__main__":
     print(device)
 
     with torch.no_grad():
-        detect(source="mask.jpeg", weights="best.pt", device=device, img_size=640, iou_thres=0.45, conf_thres=0.45)
+        detect(source="mask.jpeg", weights="best.pt", device=device, img_size=640, iou_thres=0.55, conf_thres=0.55)
