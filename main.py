@@ -45,11 +45,11 @@ def main():
         if st.button("Detect face mask on video"):
             with st.spinner(text="In progress..."):
                 output = detect_video(video_path=temp_file_1.name, temp_file=temp_file_2.name)          
-                # temp_file_3 = tempfile.NamedTemporaryFile(delete=False,suffix='.mp4')
-                # subprocess.call(args=f"ffmpeg -y -i {temp_file_2.name} -c:v libx264 {temp_file_3.name}".split(" "))
+                temp_file_3 = tempfile.NamedTemporaryFile(delete=False,suffix='.mp4')
+                subprocess.call(args=f"ffmpeg -y -i {temp_file_2.name} -c:v libx264 {temp_file_3.name}".split(" "))
             st.success("Done!")
             # st.video(temp_file_3.name)
-            result_video = open(temp_file_2.name, "rb")
+            result_video = open(temp_file_3.name, "rb")
             st.download_button(label="Download video file", data=result_video,file_name='mask_detection.mp4')
 
     # RUN THE MODEL ON WEBCAM
