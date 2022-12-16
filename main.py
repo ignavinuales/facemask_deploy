@@ -40,7 +40,7 @@ def main():
         temp_file_1 = tempfile.NamedTemporaryFile(delete=False,suffix='.mp4')
         temp_file_1.write(video_data.getbuffer())
         temp_file_2 = tempfile.NamedTemporaryFile(delete=False,suffix='.mp4')
-    
+        st.write("Note: it may take a while due to server slowness. A 15-second video takes about 2 minutes to be processed.")
         # st.video(temp_file_1.name)
         if st.button("Detect face mask on video 😷"):
             with st.spinner(text="In progress..."):
