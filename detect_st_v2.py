@@ -82,7 +82,7 @@ def detect(im0, weights, img_size, conf_thres, iou_thres, device='cpu', webcam=F
             # Write results
             for *xyxy, conf, cls in reversed(det):
                 label = f'{names[int(cls)]} {conf:.2f}'
-                plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)
+                plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=2)
 
         # cv2.imwrite('yeees.jpeg', im0)
 

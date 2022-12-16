@@ -132,7 +132,7 @@ def detect_video(video_path, temp_file):
               for *xyxy, conf, cls in reversed(det):
 
                 label = f'{names[int(cls)]} {conf:.2f}'
-                plot_one_box(xyxy, img0, label=label, color=colors[int(cls)], line_thickness=3)
+                plot_one_box(xyxy, img0, label=label, color=colors[int(cls)], line_thickness=2)
           
           print(f"{j+1}/{nframes} frames processed")
           output.write(img0)
