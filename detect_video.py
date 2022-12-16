@@ -64,7 +64,9 @@ def detect_video(video_path, temp_file):
   nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
   # Initialzing object for writing video output
+  fourcc_mp4 = cv2.VideoWriter_fourcc(*'mp4v')
   output = cv2.VideoWriter(temp_file, cv2.VideoWriter_fourcc(*'DIVX'),fps , (w,h))
+  output = cv2.VideoWriter(temp_file, cv2.VideoWriter_fourcc(*'mp4v'),fps , (w,h))
   torch.cuda.empty_cache()
   # Initializing model and setting it for inference
   with torch.no_grad():
