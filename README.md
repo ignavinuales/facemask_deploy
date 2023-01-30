@@ -1,8 +1,14 @@
 # Face mask detection using YOLOv7 (Computer Vision)
-This project aimed to create an app to detect people wearing face masks. The app is deployed on streamlint and you can use and test it by accessing the following link: https://ignavinuales-facemask-deploy-main-evthqf.streamlit.app/
+This project aimed to retrain a YOLOv7 model to detect people wearing face masks. Moreover, I created and deployed a web app on Streamlit for users to test the model. It can be accessed by the following link: https://ignavinuales-facemask-deploy-main-evthqf.streamlit.app/
 
-## Objectives
-Trained a YOLOv7 model to Detect people wearing face masks, not wearing masks, and wearing them incorrectly. Then, create an MVP web app for users to test the model.
+## Objectives Then, create an MVP web app for users to test the model.
+The objective of this project is to use the official pre-trained YOLOv7 model (built on PyTorch) and retrain it on a custom dataset to detect people wearing face masks. The class labels are:
+
+- Wearing mask
+- Not wearing mask
+- Worn incorrectly
+
+If you want access to the official YOLOv7 implementation for a deeper understanding of its architechure, please refer to https://github.com/WongKinYiu/yolov7 
 
 ## Project Directory Structure
     .
@@ -23,7 +29,5 @@ Trained a YOLOv7 model to Detect people wearing face masks, not wearing masks, a
 2. The unlabeled data were manually labelled using roboflow.
 3. After researching open-source object detection algorithms, I picked YOLOv7. You can access the published paper here: https://arxiv.org/abs/2207.02696
 4. I trained the YOLOv7 model on my custom data.
-5. Measure the model performance and collect new data to improve accuracy/recall. Example: the model was not performing well on incorrectly worn masks. Therefore, I collected and labelled new data from that class and retrained the model.
-6. After obtaining a good-performing model, the deployment was done on Streamlit Cloud for user testing.
-
-If you want access to the official YOLOv7 implementation, refer to https://github.com/WongKinYiu/yolov7 
+5. I measure the model performance and collect new data to improve accuracy/recall. Example: the model was not performing well on incorrectly worn masks. Therefore, I collected and labelled new data from that class and retrained the model.
+6. After obtaining a well-performing model, the deployment was done on Streamlit Cloud for user testing.
