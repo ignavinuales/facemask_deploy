@@ -1,16 +1,30 @@
-import time
-import cv2
-import torch
-import torch.backends.cudnn as cudnn
-import random
 from models.experimental import attempt_load
+import numpy as np
+import random
+import time
+import torch
+from utils.datasets import letterbox
 from utils.general import check_img_size, non_max_suppression, scale_coords, set_logging
 from utils.plots import plot_one_box
-from utils.torch_utils import select_device, time_synchronized
-from utils.datasets import letterbox
-import numpy as np
+from utils.torch_utils import select_device
 
-def detect(im0, weights, img_size, conf_thres, iou_thres, device='cpu', webcam=False):
+
+def run_inference_image(input_image: np.ndarray, weights: str, img_size: int, conf_thres: float, iou_thres: float, device: str = 'cpu') -> np.ndarray:
+    """
+    Run image inference on the Yolov7 computer vision model.
+
+    Args:
+        input_image (numpy.ndarray): image to be fed into the model.
+        weights (str): path to the model .pt file.
+        img_size (int): number of pixels of the input_image.
+        conf_thres (float): model's confidence threshold.
+        iou_thres (float): IoU threshold.
+        device (str): device where the model is run (GPU-CUDA or CPU). It defaults to 'cpu'.
+
+    Returns:
+        input_image (numpy.ndarray): output of the model. Hence, input_image with bounding boxes and classes detected.
+
+    """
 
     # Initialize
     set_logging()
@@ -25,16 +39,14 @@ def detect(im0, weights, img_size, conf_thres, iou_thres, device='cpu', webcam=F
     if half:
         model.half()  # to FP16
 
-    # Set Dataloader
-    vid_path, vid_writer = None, None
-
     # Get names and colors
     names = model.module.names if hasattr(model, 'module') else model.names
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
 
     # Run inference
     if device.type != 'cpu':
-        model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
+        model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(
+            next(model.parameters())))  # run once
 
     old_img_w = old_img_h = imgsz
     old_img_b = 1
@@ -42,8 +54,7 @@ def detect(im0, weights, img_size, conf_thres, iou_thres, device='cpu', webcam=F
     t0 = time.time()
 
     # Read image
-    # im0 = cv2.imread(source)
-    img = letterbox(im0, img_size, stride=stride)[0]
+    img = letterbox(input_image, img_size, stride=stride)[0]
 
     # Convert
     img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
@@ -62,36 +73,27 @@ def detect(im0, weights, img_size, conf_thres, iou_thres, device='cpu', webcam=F
         old_img_w = img.shape[3]
 
     # Inference
-    t1 = time_synchronized()
-    with torch.no_grad():   # Calculating gradients would cause a GPU memory leak
+    with torch.no_grad(): 
         pred = model(img)[0]
-    t2 = time_synchronized()
 
     # Apply NMS
     pred = non_max_suppression(pred, conf_thres, iou_thres)
-    t3 = time_synchronized()
 
     # Process detections
-    for i, det in enumerate(pred):  # detections per image
+    for _, det in enumerate(pred):  # detections per image
 
-        gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
+        # gn = torch.tensor(input_image.shape)[[1, 0, 1, 0]]  # normalization gain whwh
         if len(det):
-            # Rescale boxes from img_size to im0 size
-            det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+            # Rescale boxes from img_size to input_image size
+            det[:, :4] = scale_coords(
+                img.shape[2:], det[:, :4], input_image.shape).round()
 
             # Write results
             for *xyxy, conf, cls in reversed(det):
                 label = f'{names[int(cls)]} {conf:.2f}'
-                plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=2)
-
-        # cv2.imwrite('yeees.jpeg', im0)
+                plot_one_box(xyxy, input_image, label=label,
+                             color=colors[int(cls)], line_thickness=2)
 
     print(f'Done. ({time.time() - t0:.3f}s)')
-    return im0
 
-if __name__ == "__main__":
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    print(device)
-
-    with torch.no_grad():
-        detect(source="mask.jpeg", weights="best.pt", device=device, img_size=640, iou_thres=0.65, conf_thres=0.65)
+    return input_image
